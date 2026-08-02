@@ -14,7 +14,139 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assignments: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          file_name: string
+          file_path: string
+          id: string
+          title: string
+          uploaded_by: string | null
+          uploader_name: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_path: string
+          id?: string
+          title: string
+          uploaded_by?: string | null
+          uploader_name?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          id?: string
+          title?: string
+          uploaded_by?: string | null
+          uploader_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_unlocks: {
+        Row: {
+          amount_kobo: number
+          course_id: string
+          created_at: string
+          id: string
+          reference: string
+          user_id: string
+        }
+        Insert: {
+          amount_kobo?: number
+          course_id: string
+          created_at?: string
+          id?: string
+          reference: string
+          user_id: string
+        }
+        Update: {
+          amount_kobo?: number
+          course_id?: string
+          created_at?: string
+          id?: string
+          reference?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_unlocks_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          code: string
+          created_at: string
+          credit_units: number
+          id: string
+          level: number
+          outline: Json
+          semester: string
+          title: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          credit_units?: number
+          id?: string
+          level: number
+          outline?: Json
+          semester: string
+          title: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          credit_units?: number
+          id?: string
+          level?: number
+          outline?: Json
+          semester?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

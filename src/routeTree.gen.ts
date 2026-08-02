@@ -10,33 +10,114 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as UploadRouteImport } from './routes/upload'
+import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
+import { Route as LevelsLevelRouteImport } from './routes/levels.$level'
+import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
+import { Route as LevelsLevelSemesterRouteImport } from './routes/levels.$level.$semester'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UploadRoute = UploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
+  id: '/courses/$courseId',
+  path: '/courses/$courseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LevelsLevelRoute = LevelsLevelRouteImport.update({
+  id: '/levels/$level',
+  path: '/levels/$level',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentCallbackRoute = PaymentCallbackRouteImport.update({
+  id: '/payment/callback',
+  path: '/payment/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LevelsLevelSemesterRoute = LevelsLevelSemesterRouteImport.update({
+  id: '/$semester',
+  path: '/$semester',
+  getParentRoute: () => LevelsLevelRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/upload': typeof UploadRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/levels/$level': typeof LevelsLevelRouteWithChildren
+  '/payment/callback': typeof PaymentCallbackRoute
+  '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/upload': typeof UploadRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/levels/$level': typeof LevelsLevelRouteWithChildren
+  '/payment/callback': typeof PaymentCallbackRoute
+  '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/upload': typeof UploadRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/levels/$level': typeof LevelsLevelRouteWithChildren
+  '/payment/callback': typeof PaymentCallbackRoute
+  '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/upload'
+    | '/courses/$courseId'
+    | '/levels/$level'
+    | '/payment/callback'
+    | '/levels/$level/$semester'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/upload'
+    | '/courses/$courseId'
+    | '/levels/$level'
+    | '/payment/callback'
+    | '/levels/$level/$semester'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/upload'
+    | '/courses/$courseId'
+    | '/levels/$level'
+    | '/payment/callback'
+    | '/levels/$level/$semester'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  UploadRoute: typeof UploadRoute
+  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+  LevelsLevelRoute: typeof LevelsLevelRouteWithChildren
+  PaymentCallbackRoute: typeof PaymentCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +129,71 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/upload': {
+      id: '/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof UploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/$courseId': {
+      id: '/courses/$courseId'
+      path: '/courses/$courseId'
+      fullPath: '/courses/$courseId'
+      preLoaderRoute: typeof CoursesCourseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/levels/$level': {
+      id: '/levels/$level'
+      path: '/levels/$level'
+      fullPath: '/levels/$level'
+      preLoaderRoute: typeof LevelsLevelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/callback': {
+      id: '/payment/callback'
+      path: '/payment/callback'
+      fullPath: '/payment/callback'
+      preLoaderRoute: typeof PaymentCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/levels/$level/$semester': {
+      id: '/levels/$level/$semester'
+      path: '/$semester'
+      fullPath: '/levels/$level/$semester'
+      preLoaderRoute: typeof LevelsLevelSemesterRouteImport
+      parentRoute: typeof LevelsLevelRoute
+    }
   }
 }
 
+interface LevelsLevelRouteChildren {
+  LevelsLevelSemesterRoute: typeof LevelsLevelSemesterRoute
+}
+
+const LevelsLevelRouteChildren: LevelsLevelRouteChildren = {
+  LevelsLevelSemesterRoute: LevelsLevelSemesterRoute,
+}
+
+const LevelsLevelRouteWithChildren = LevelsLevelRoute._addFileChildren(
+  LevelsLevelRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  UploadRoute: UploadRoute,
+  CoursesCourseIdRoute: CoursesCourseIdRoute,
+  LevelsLevelRoute: LevelsLevelRouteWithChildren,
+  PaymentCallbackRoute: PaymentCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

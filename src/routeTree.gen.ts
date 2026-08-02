@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as UploadRouteImport } from './routes/upload'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as LevelsLevelRouteImport } from './routes/levels.$level'
 import { Route as LevelsLevelSemesterRouteImport } from './routes/levels.$level.$semester'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UploadRoute = UploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
@@ -44,6 +50,7 @@ const LevelsLevelSemesterRoute = LevelsLevelSemesterRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/upload': typeof UploadRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/upload': typeof UploadRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/upload': typeof UploadRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
@@ -68,6 +77,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/upload'
     | '/courses/$courseId'
     | '/levels/$level'
     | '/levels/$level/$semester'
@@ -75,6 +85,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/upload'
     | '/courses/$courseId'
     | '/levels/$level'
     | '/levels/$level/$semester'
@@ -82,6 +93,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/upload'
     | '/courses/$courseId'
     | '/levels/$level'
     | '/levels/$level/$semester'
@@ -90,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  UploadRoute: typeof UploadRoute
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
   LevelsLevelRoute: typeof LevelsLevelRouteWithChildren
 }
@@ -108,6 +121,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/upload': {
+      id: '/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof UploadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses/$courseId': {
@@ -149,6 +169,7 @@ const LevelsLevelRouteWithChildren = LevelsLevelRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  UploadRoute: UploadRoute,
   CoursesCourseIdRoute: CoursesCourseIdRoute,
   LevelsLevelRoute: LevelsLevelRouteWithChildren,
 }

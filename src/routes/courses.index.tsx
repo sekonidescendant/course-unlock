@@ -53,7 +53,7 @@ function BrowseCourses() {
         {[...groups.entries()].map(([key, list]) => (
           <section key={key}>
             <h2 className="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
-              {list[0].level} Level · {semesterLabel(list[0].semester)}
+              {list[0]!.level} Level · {semesterLabel(list[0]!.semester)}
             </h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {list.map((course) => (

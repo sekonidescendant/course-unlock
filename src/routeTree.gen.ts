@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as MyDownloadsRouteImport } from './routes/my-downloads'
 import { Route as UploadRouteImport } from './routes/upload'
+import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as LevelsLevelRouteImport } from './routes/levels.$level'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
@@ -27,9 +29,19 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyDownloadsRoute = MyDownloadsRouteImport.update({
+  id: '/my-downloads',
+  path: '/my-downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UploadRoute = UploadRouteImport.update({
   id: '/upload',
   path: '/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesIndexRoute = CoursesIndexRouteImport.update({
+  id: '/courses/',
+  path: '/courses/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
@@ -56,29 +68,35 @@ const LevelsLevelSemesterRoute = LevelsLevelSemesterRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/my-downloads': typeof MyDownloadsRoute
   '/upload': typeof UploadRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/payment/callback': typeof PaymentCallbackRoute
+  '/courses/': typeof CoursesIndexRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/my-downloads': typeof MyDownloadsRoute
   '/upload': typeof UploadRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/payment/callback': typeof PaymentCallbackRoute
+  '/courses': typeof CoursesIndexRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/my-downloads': typeof MyDownloadsRoute
   '/upload': typeof UploadRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/payment/callback': typeof PaymentCallbackRoute
+  '/courses/': typeof CoursesIndexRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
 }
 export interface FileRouteTypes {
@@ -86,38 +104,46 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/my-downloads'
     | '/upload'
     | '/courses/$courseId'
     | '/levels/$level'
     | '/payment/callback'
+    | '/courses/'
     | '/levels/$level/$semester'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/my-downloads'
     | '/upload'
     | '/courses/$courseId'
     | '/levels/$level'
     | '/payment/callback'
+    | '/courses'
     | '/levels/$level/$semester'
   id:
     | '__root__'
     | '/'
     | '/auth'
+    | '/my-downloads'
     | '/upload'
     | '/courses/$courseId'
     | '/levels/$level'
     | '/payment/callback'
+    | '/courses/'
     | '/levels/$level/$semester'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  MyDownloadsRoute: typeof MyDownloadsRoute
   UploadRoute: typeof UploadRoute
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
   LevelsLevelRoute: typeof LevelsLevelRouteWithChildren
   PaymentCallbackRoute: typeof PaymentCallbackRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -136,11 +162,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/my-downloads': {
+      id: '/my-downloads'
+      path: '/my-downloads'
+      fullPath: '/my-downloads'
+      preLoaderRoute: typeof MyDownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/upload': {
       id: '/upload'
       path: '/upload'
       fullPath: '/upload'
       preLoaderRoute: typeof UploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/': {
+      id: '/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof CoursesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses/$courseId': {
@@ -189,10 +229,12 @@ const LevelsLevelRouteWithChildren = LevelsLevelRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  MyDownloadsRoute: MyDownloadsRoute,
   UploadRoute: UploadRoute,
   CoursesCourseIdRoute: CoursesCourseIdRoute,
   LevelsLevelRoute: LevelsLevelRouteWithChildren,
   PaymentCallbackRoute: PaymentCallbackRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

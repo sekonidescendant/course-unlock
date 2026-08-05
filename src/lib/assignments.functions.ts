@@ -10,7 +10,7 @@ export const getAssignmentDownloadUrl = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: assignment, error } = await context.supabase
       .from("assignments")
-      .select("id, course_id, file_path, file_name")
+      .select("id, course_id, file_path, file_name, uploaded_by")
       .eq("id", data.assignmentId)
       .maybeSingle();
     if (error || !assignment) throw new Error("Assignment not found");
@@ -19,9 +19,10 @@ export const getAssignmentDownloadUrl = createServerFn({ method: "POST" })
       .from("course_unlocks")
       .select("id")
       .eq("course_id", assignment.course_id)
+      .eq("user_id", context.userId)
       .maybeSingle();
 
-    const isUploader = false;
+    const isUploader = assignment.uploaded_by === context.userId;
     if (!unlock && !isUploader) {
       throw new Error("Unlock this course to download its assignments.");
     }

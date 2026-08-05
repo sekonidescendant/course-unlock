@@ -94,7 +94,10 @@ function UploadPage() {
         title: parsed.data.title,
         description: parsed.data.description || null,
         uploaded_by: user.id,
-        uploader_name: (user.user_metadata?.["full_name"] as string | undefined) ?? null,
+        uploader_name:
+          (user.user_metadata?.["full_name"] as string | undefined) ||
+          user.email?.split("@")[0] ||
+          "A student",
         file_path: path,
         file_name: file.name,
       });

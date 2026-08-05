@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ChevronLeft, Download, Lock, Upload, FileText, CheckCircle2 } from "lucide-react";
@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { courseQuery, assignmentsQuery, unlockQuery, UNLOCK_PRICE_NAIRA } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { startCourseUnlock } from "@/lib/payments.functions";
+import { startCourseUnlock, verifyCourseUnlock } from "@/lib/payments.functions";
 import { getAssignmentDownloadUrl } from "@/lib/assignments.functions";
 
 export const Route = createFileRoute("/courses/$courseId")({
@@ -39,6 +39,8 @@ function CoursePage() {
   const { data: assignments = [] } = useQuery(assignmentsQuery(courseId));
   const { data: unlocked = false } = useQuery(unlockQuery(courseId, user?.id));
   const startUnlock = useServerFn(startCourseUnlock);
+  const verifyUnlock = useServerFn(verifyCourseUnlock);
+  const queryClient = useQueryClient();
   const getDownload = useServerFn(getAssignmentDownloadUrl);
   const [paying, setPaying] = useState(false);
 
@@ -62,7 +64,32 @@ function CoursePage() {
       const res = await startUnlock({
         data: { courseId, origin: window.location.origin },
       });
-      window.location.href = res.authorizationUrl;
+      const { default: PaystackPop } = await import("@paystack/inline-js");
+      const popup = new PaystackPop();
+      popup.resumeTransaction(res.accessCode, {
+        onSuccess: (tx: { reference: string }) => {
+          void (async () => {
+            try {
+              const verified = await verifyUnlock({ data: { reference: tx.reference } });
+              if (!verified.ok) throw new Error("Payment could not be confirmed.");
+              await queryClient.invalidateQueries({ queryKey: ["unlock"] });
+              toast.success("Course unlocked. Downloads are open.");
+            } catch (err) {
+              toast.error(err instanceof Error ? err.message : "Verification failed.");
+            } finally {
+              setPaying(false);
+            }
+          })();
+        },
+        onCancel: () => {
+          setPaying(false);
+          toast.info("Payment cancelled.");
+        },
+        onError: () => {
+          setPaying(false);
+          toast.error("Payment failed. Please try again.");
+        },
+      });
     } catch (err) {
       setPaying(false);
       toast.error(err instanceof Error ? err.message : "Could not start the payment.");

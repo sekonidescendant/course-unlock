@@ -44,16 +44,17 @@ export const startCourseUnlock = createServerFn({ method: "POST" })
     const json = (await res.json()) as {
       status?: boolean;
       message?: string;
-      data?: { authorization_url?: string; reference?: string };
+      data?: { authorization_url?: string; reference?: string; access_code?: string };
     };
 
-    if (!res.ok || !json.status || !json.data?.authorization_url) {
+    if (!res.ok || !json.status || !json.data?.authorization_url || !json.data?.access_code) {
       console.error("Paystack init failed", json.message);
       throw new Error("Could not start the payment. Please try again.");
     }
 
     return {
       authorizationUrl: json.data.authorization_url,
+      accessCode: json.data.access_code,
       reference: json.data.reference ?? "",
     };
   });

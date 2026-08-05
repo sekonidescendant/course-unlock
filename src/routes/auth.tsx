@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,9 +41,9 @@ function AuthPage() {
 
   const dest = search.redirect && search.redirect.startsWith("/") ? search.redirect : "/";
 
-  if (user) {
-    void navigate({ to: dest });
-  }
+  useEffect(() => {
+    if (user) void navigate({ to: dest });
+  }, [user, dest, navigate]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,7 +54,7 @@ function AuthPage() {
           .object({
             name: z.string().trim().min(2, "Enter your name").max(80),
             email: z.string().trim().email("Enter a valid email").max(255),
-            password: z.string().min(6, "Password must be at least 6 characters").max(72),
+            password: z.string().min(8, "Password must be at least 8 characters").max(72),
           })
           .safeParse({ name, email, password });
         if (!parsed.success) {
@@ -70,8 +70,7 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Account created. Check your email to confirm, then sign in.");
-        setMode("signin");
+        toast.success("Account created. You're signed in.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),

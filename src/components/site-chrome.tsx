@@ -27,7 +27,17 @@ function displayName(user: { email?: string; user_metadata?: Record<string, unkn
 
 export function SiteHeader() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const name = displayName(user);
+  const initials = name.slice(0, 1).toUpperCase();
+
+  async function handleSignOut() {
+    setOpen(false);
+    await signOut();
+    void navigate({ to: "/" });
+  }
+
 
   return (
     <header className="sticky top-0 z-40 bg-navy text-navy-foreground">

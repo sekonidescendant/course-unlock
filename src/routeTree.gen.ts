@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyDownloadsRouteImport } from './routes/my-downloads'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as UploadRouteImport } from './routes/upload'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAssignmentsRouteImport } from './routes/admin.assignments'
+import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
+import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminStudentsRouteImport } from './routes/admin.students'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as LevelsLevelRouteImport } from './routes/levels.$level'
@@ -26,6 +32,11 @@ import { Route as LevelsLevelSemesterRouteImport } from './routes/levels.$level.
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -57,6 +68,31 @@ const UploadRoute = UploadRouteImport.update({
   id: '/upload',
   path: '/upload',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAssignmentsRoute = AdminAssignmentsRouteImport.update({
+  id: '/assignments',
+  path: '/assignments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCoursesRoute = AdminCoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStudentsRoute = AdminStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => AdminRoute,
 } as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/courses/',
@@ -91,15 +127,21 @@ const LevelsLevelSemesterRoute = LevelsLevelSemesterRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/login': typeof LoginRoute
   '/my-downloads': typeof MyDownloadsRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/upload': typeof UploadRoute
+  '/admin/assignments': typeof AdminAssignmentsRoute
+  '/admin/courses': typeof AdminCoursesRoute
+  '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/students': typeof AdminStudentsRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/payment/callback': typeof PaymentCallbackRoute
+  '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
   '/levels/$level/': typeof LevelsLevelIndexRoute
@@ -112,8 +154,13 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/upload': typeof UploadRoute
+  '/admin/assignments': typeof AdminAssignmentsRoute
+  '/admin/courses': typeof AdminCoursesRoute
+  '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/students': typeof AdminStudentsRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
+  '/admin': typeof AdminIndexRoute
   '/courses': typeof CoursesIndexRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
   '/levels/$level': typeof LevelsLevelIndexRoute
@@ -121,15 +168,21 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/login': typeof LoginRoute
   '/my-downloads': typeof MyDownloadsRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/upload': typeof UploadRoute
+  '/admin/assignments': typeof AdminAssignmentsRoute
+  '/admin/courses': typeof AdminCoursesRoute
+  '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/students': typeof AdminStudentsRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/payment/callback': typeof PaymentCallbackRoute
+  '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
   '/levels/$level/': typeof LevelsLevelIndexRoute
@@ -138,15 +191,21 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/auth'
     | '/login'
     | '/my-downloads'
     | '/profile'
     | '/signup'
     | '/upload'
+    | '/admin/assignments'
+    | '/admin/courses'
+    | '/admin/payments'
+    | '/admin/students'
     | '/courses/$courseId'
     | '/levels/$level'
     | '/payment/callback'
+    | '/admin/'
     | '/courses/'
     | '/levels/$level/$semester'
     | '/levels/$level/'
@@ -159,23 +218,34 @@ export interface FileRouteTypes {
     | '/profile'
     | '/signup'
     | '/upload'
+    | '/admin/assignments'
+    | '/admin/courses'
+    | '/admin/payments'
+    | '/admin/students'
     | '/courses/$courseId'
     | '/payment/callback'
+    | '/admin'
     | '/courses'
     | '/levels/$level/$semester'
     | '/levels/$level'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/auth'
     | '/login'
     | '/my-downloads'
     | '/profile'
     | '/signup'
     | '/upload'
+    | '/admin/assignments'
+    | '/admin/courses'
+    | '/admin/payments'
+    | '/admin/students'
     | '/courses/$courseId'
     | '/levels/$level'
     | '/payment/callback'
+    | '/admin/'
     | '/courses/'
     | '/levels/$level/$semester'
     | '/levels/$level/'
@@ -183,6 +253,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   LoginRoute: typeof LoginRoute
   MyDownloadsRoute: typeof MyDownloadsRoute
@@ -202,6 +273,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -245,6 +323,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/upload'
       preLoaderRoute: typeof UploadRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/assignments': {
+      id: '/admin/assignments'
+      path: '/assignments'
+      fullPath: '/admin/assignments'
+      preLoaderRoute: typeof AdminAssignmentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/courses': {
+      id: '/admin/courses'
+      path: '/courses'
+      fullPath: '/admin/courses'
+      preLoaderRoute: typeof AdminCoursesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/payments': {
+      id: '/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AdminPaymentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/students': {
+      id: '/admin/students'
+      path: '/students'
+      fullPath: '/admin/students'
+      preLoaderRoute: typeof AdminStudentsRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/courses/': {
       id: '/courses/'
@@ -291,6 +404,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminAssignmentsRoute: typeof AdminAssignmentsRoute
+  AdminCoursesRoute: typeof AdminCoursesRoute
+  AdminPaymentsRoute: typeof AdminPaymentsRoute
+  AdminStudentsRoute: typeof AdminStudentsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAssignmentsRoute: AdminAssignmentsRoute,
+  AdminCoursesRoute: AdminCoursesRoute,
+  AdminPaymentsRoute: AdminPaymentsRoute,
+  AdminStudentsRoute: AdminStudentsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface LevelsLevelRouteChildren {
   LevelsLevelSemesterRoute: typeof LevelsLevelSemesterRoute
   LevelsLevelIndexRoute: typeof LevelsLevelIndexRoute
@@ -307,6 +438,7 @@ const LevelsLevelRouteWithChildren = LevelsLevelRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   LoginRoute: LoginRoute,
   MyDownloadsRoute: MyDownloadsRoute,

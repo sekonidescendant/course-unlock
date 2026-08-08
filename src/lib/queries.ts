@@ -97,3 +97,39 @@ export const unlockQuery = (courseId: string, userId: string | undefined) =>
       return Boolean(data);
     },
   });
+
+export type CourseProgress = {
+  id: string;
+  course_id: string;
+  completed_weeks: number[];
+};
+
+export const courseProgressQuery = (courseId: string, userId: string | undefined) =>
+  queryOptions({
+    queryKey: ["progress", courseId, userId ?? "anon"],
+    enabled: Boolean(userId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("course_progress")
+        .select("id, course_id, completed_weeks")
+        .eq("course_id", courseId)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as unknown as CourseProgress) ?? null;
+    },
+  });
+
+// One row per course the student has touched — used to badge the browse/library cards
+// without firing a separate request per course.
+export const allProgressQuery = (userId: string | undefined) =>
+  queryOptions({
+    queryKey: ["progress", "all", userId ?? "anon"],
+    enabled: Boolean(userId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("course_progress")
+        .select("id, course_id, completed_weeks");
+      if (error) throw error;
+      return (data ?? []) as unknown as CourseProgress[];
+    },
+  });

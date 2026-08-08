@@ -4,7 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ChevronLeft, Download, Lock, Upload, FileText, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { courseQuery, assignmentsQuery, unlockQuery, UNLOCK_PRICE_NAIRA } from "@/lib/queries";
+import { courseQuery, assignmentsQuery, unlockQuery, courseProgressQuery, UNLOCK_PRICE_NAIRA } from "@/lib/queries";
+import { supabase } from "@/integrations/supabase/client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { startCourseUnlock, verifyCourseUnlock } from "@/lib/payments.functions";
@@ -38,6 +41,29 @@ function CoursePage() {
   const { data: course } = useSuspenseQuery(courseQuery(courseId));
   const { data: assignments = [] } = useQuery(assignmentsQuery(courseId));
   const { data: unlocked = false } = useQuery(unlockQuery(courseId, user?.id));
+  const { data: progress } = useQuery(courseProgressQuery(courseId, user?.id));
+  const completedWeeks = progress?.completed_weeks ?? [];
+
+  async function toggleWeek(weekNumber: number) {
+    if (!user) return;
+    const next = completedWeeks.includes(weekNumber)
+      ? completedWeeks.filter((w) => w !== weekNumber)
+      : [...completedWeeks, weekNumber];
+    const { error } = await supabase
+      .from("course_progress")
+      .upsert(
+        { user_id: user.id, course_id: courseId, completed_weeks: next, updated_at: new Date().toISOString() },
+        { onConflict: "user_id,course_id" },
+      );
+    if (!error) {
+      queryClient.setQueryData(["progress", courseId, user.id], {
+        id: progress?.id ?? "",
+        course_id: courseId,
+        completed_weeks: next,
+      });
+      void queryClient.invalidateQueries({ queryKey: ["progress", "all", user.id] });
+    }
+  }
   const startUnlock = useServerFn(startCourseUnlock);
   const verifyUnlock = useServerFn(verifyCourseUnlock);
   const queryClient = useQueryClient();
@@ -127,6 +153,14 @@ function CoursePage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Free to read. Not downloadable — it lives here so it stays up to date.
         </p>
+        {user && outline.length > 0 ? (
+          <div className="mt-3 flex items-center gap-3">
+            <Progress value={(completedWeeks.length / outline.length) * 100} className="h-2 flex-1" />
+            <span className="shrink-0 text-xs font-medium text-muted-foreground">
+              {completedWeeks.length}/{outline.length} weeks read
+            </span>
+          </div>
+        ) : null}
         {outline.length === 0 ? (
           <div className="mt-4 rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">
             The outline for this course is being written and will appear here soon.
@@ -134,14 +168,24 @@ function CoursePage() {
         ) : (
           <ol className="mt-4 space-y-3">
             {outline.map((week, i) => (
-              <li key={i} className="rounded-2xl border border-border bg-card p-4">
-                <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                  Week {i + 1}
-                </p>
-                <p className="mt-1 font-semibold">{week.title}</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {week.description}
-                </p>
+              <li key={i} className="flex gap-3 rounded-2xl border border-border bg-card p-4">
+                {user ? (
+                  <Checkbox
+                    className="mt-1"
+                    checked={completedWeeks.includes(i + 1)}
+                    onCheckedChange={() => void toggleWeek(i + 1)}
+                    aria-label={`Mark week ${i + 1} as read`}
+                  />
+                ) : null}
+                <div>
+                  <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                    Week {i + 1}
+                  </p>
+                  <p className="mt-1 font-semibold">{week.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    {week.description}
+                  </p>
+                </div>
               </li>
             ))}
           </ol>

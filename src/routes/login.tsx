@@ -95,6 +95,11 @@ function LoginPage() {
         <Button type="submit" className="w-full" disabled={busy}>
           {busy ? "Please wait…" : "Log in"}
         </Button>
+        <p className="text-center text-sm">
+          <Link to="/forgot-password" className="font-medium text-muted-foreground hover:text-primary">
+            Forgot your password?
+          </Link>
+        </p>
       </form>
 
       <p className="mt-4 text-center text-sm text-muted-foreground">

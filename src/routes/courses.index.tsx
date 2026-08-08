@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { BookOpen } from "lucide-react";
-import { allCoursesQuery, type Course } from "@/lib/queries";
+import { allCoursesQuery, allProgressQuery, type Course } from "@/lib/queries";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/courses/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(allCoursesQuery()),
@@ -30,7 +31,10 @@ function semesterLabel(semester: string) {
 }
 
 function BrowseCourses() {
+  const { user } = useAuth();
   const { data: courses } = useSuspenseQuery(allCoursesQuery());
+  const { data: progressRows = [] } = useQuery(allProgressQuery(user?.id));
+  const progressByCourse = new Map(progressRows.map((p) => [p.course_id, p.completed_weeks.length]));
 
   const groups = new Map<string, Course[]>();
   for (const course of courses) {
@@ -72,6 +76,16 @@ function BrowseCourses() {
                     {course.credit_units} units ·{" "}
                     {Array.isArray(course.outline) ? course.outline.length : 0} weeks outlined
                   </p>
+                  {(() => {
+                    const done = progressByCourse.get(course.id);
+                    const total = Array.isArray(course.outline) ? course.outline.length : 0;
+                    if (!done || !total) return null;
+                    return (
+                      <p className="mt-1 text-xs font-medium text-primary">
+                        {Math.round((done / total) * 100)}% read
+                      </p>
+                    );
+                  })()}
                 </Link>
               ))}
             </div>

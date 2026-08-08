@@ -62,30 +62,43 @@ export function SiteHeader() {
             </Link>
           ))}
           {user ? (
-            <div className="ml-2 flex items-center gap-1">
-              <Link to="/upload">
-                <Button size="sm" className="rounded-xl">
-                  Upload
-                </Button>
-              </Link>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-navy-muted hover:bg-navy-foreground/10 hover:text-navy-foreground"
-                onClick={() => void signOut()}
-                aria-label="Sign out"
-              >
-                <LogOut className="size-4" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="ml-2 flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm font-medium text-navy-foreground transition-colors hover:bg-navy-foreground/10"
+                  aria-label="Account menu"
+                >
+                  <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                    {initials}
+                  </span>
+                  <span className="max-w-32 truncate">{name}</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">
+                    <UserRound className="size-4" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => void handleSignOut()}>
+                  <LogOut className="size-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <Link to="/auth" className="ml-2" aria-label="Sign in">
+            <Link to="/login" className="ml-2" aria-label="Sign in">
               <Button size="sm" className="rounded-xl">
                 <UserRound className="size-4" />
                 Sign in
               </Button>
             </Link>
           )}
+
         </nav>
 
         <button

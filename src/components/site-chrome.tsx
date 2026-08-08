@@ -1,8 +1,16 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { GraduationCap, LogOut, Menu, UserRound, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navItems = [
   { to: "/", label: "Home", exact: true },
@@ -10,9 +18,26 @@ const navItems = [
   { to: "/my-downloads", label: "My Downloads", exact: false },
 ] as const;
 
+function displayName(user: { email?: string; user_metadata?: Record<string, unknown> } | null) {
+  if (!user) return "";
+  const meta = (user.user_metadata?.["full_name"] as string | undefined)?.trim();
+  return meta || user.email?.split("@")[0] || "Student";
+}
+
+
 export function SiteHeader() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const name = displayName(user);
+  const initials = name.slice(0, 1).toUpperCase();
+
+  async function handleSignOut() {
+    setOpen(false);
+    await signOut();
+    void navigate({ to: "/" });
+  }
+
 
   return (
     <header className="sticky top-0 z-40 bg-navy text-navy-foreground">
@@ -37,30 +62,43 @@ export function SiteHeader() {
             </Link>
           ))}
           {user ? (
-            <div className="ml-2 flex items-center gap-1">
-              <Link to="/upload">
-                <Button size="sm" className="rounded-xl">
-                  Upload
-                </Button>
-              </Link>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-navy-muted hover:bg-navy-foreground/10 hover:text-navy-foreground"
-                onClick={() => void signOut()}
-                aria-label="Sign out"
-              >
-                <LogOut className="size-4" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="ml-2 flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm font-medium text-navy-foreground transition-colors hover:bg-navy-foreground/10"
+                  aria-label="Account menu"
+                >
+                  <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                    {initials}
+                  </span>
+                  <span className="max-w-32 truncate">{name}</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">
+                    <UserRound className="size-4" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => void handleSignOut()}>
+                  <LogOut className="size-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <Link to="/auth" className="ml-2" aria-label="Sign in">
+            <Link to="/login" className="ml-2" aria-label="Sign in">
               <Button size="sm" className="rounded-xl">
                 <UserRound className="size-4" />
                 Sign in
               </Button>
             </Link>
           )}
+
         </nav>
 
         <button
@@ -91,34 +129,38 @@ export function SiteHeader() {
             ))}
             {user ? (
               <>
+                <div className="mt-2 flex items-center gap-2 px-2 py-3">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                    {initials}
+                  </span>
+                  <span className="truncate text-sm font-medium">{name}</span>
+                </div>
                 <Link
-                  to="/upload"
+                  to="/profile"
                   onClick={() => setOpen(false)}
                   className="rounded-lg px-2 py-3 text-sm font-medium text-navy-muted"
                   activeProps={{ className: "text-primary" }}
                 >
-                  Upload an assignment
+                  Profile
                 </Link>
                 <button
                   type="button"
                   className="rounded-lg px-2 py-3 text-left text-sm font-medium text-navy-muted"
-                  onClick={() => {
-                    setOpen(false);
-                    void signOut();
-                  }}
+                  onClick={() => void handleSignOut()}
                 >
-                  Sign out
+                  Log out
                 </button>
               </>
             ) : (
               <Link
-                to="/auth"
+                to="/login"
                 onClick={() => setOpen(false)}
                 className="mt-2 rounded-xl bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-foreground"
               >
                 Sign in
               </Link>
             )}
+
           </div>
         </nav>
       ) : null}

@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyDownloadsRouteImport } from './routes/my-downloads'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
@@ -30,9 +33,24 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyDownloadsRoute = MyDownloadsRouteImport.update({
   id: '/my-downloads',
   path: '/my-downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UploadRoute = UploadRouteImport.update({
@@ -74,7 +92,10 @@ const LevelsLevelSemesterRoute = LevelsLevelSemesterRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
   '/my-downloads': typeof MyDownloadsRoute
+  '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
   '/upload': typeof UploadRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
@@ -86,7 +107,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
   '/my-downloads': typeof MyDownloadsRoute
+  '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
   '/upload': typeof UploadRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
@@ -98,7 +122,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
   '/my-downloads': typeof MyDownloadsRoute
+  '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
   '/upload': typeof UploadRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
@@ -112,7 +139,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/login'
     | '/my-downloads'
+    | '/profile'
+    | '/signup'
     | '/upload'
     | '/courses/$courseId'
     | '/levels/$level'
@@ -124,7 +154,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/login'
     | '/my-downloads'
+    | '/profile'
+    | '/signup'
     | '/upload'
     | '/courses/$courseId'
     | '/payment/callback'
@@ -135,7 +168,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/login'
     | '/my-downloads'
+    | '/profile'
+    | '/signup'
     | '/upload'
     | '/courses/$courseId'
     | '/levels/$level'
@@ -148,7 +184,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  LoginRoute: typeof LoginRoute
   MyDownloadsRoute: typeof MyDownloadsRoute
+  ProfileRoute: typeof ProfileRoute
+  SignupRoute: typeof SignupRoute
   UploadRoute: typeof UploadRoute
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
   LevelsLevelRoute: typeof LevelsLevelRouteWithChildren
@@ -172,11 +211,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-downloads': {
       id: '/my-downloads'
       path: '/my-downloads'
       fullPath: '/my-downloads'
       preLoaderRoute: typeof MyDownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/upload': {
@@ -248,7 +308,10 @@ const LevelsLevelRouteWithChildren = LevelsLevelRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  LoginRoute: LoginRoute,
   MyDownloadsRoute: MyDownloadsRoute,
+  ProfileRoute: ProfileRoute,
+  SignupRoute: SignupRoute,
   UploadRoute: UploadRoute,
   CoursesCourseIdRoute: CoursesCourseIdRoute,
   LevelsLevelRoute: LevelsLevelRouteWithChildren,

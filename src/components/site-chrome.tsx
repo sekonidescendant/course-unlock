@@ -1,14 +1,29 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { GraduationCap, LogOut, Menu, UserRound, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navItems = [
   { to: "/", label: "Home", exact: true },
   { to: "/courses", label: "Browse Courses", exact: false },
   { to: "/my-downloads", label: "My Downloads", exact: false },
 ] as const;
+
+function displayName(user: { email?: string; user_metadata?: Record<string, unknown> } | null) {
+  if (!user) return "";
+  const meta = (user.user_metadata?.["full_name"] as string | undefined)?.trim();
+  return meta || user.email?.split("@")[0] || "Student";
+}
+
 
 export function SiteHeader() {
   const { user, signOut } = useAuth();

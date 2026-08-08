@@ -129,34 +129,38 @@ export function SiteHeader() {
             ))}
             {user ? (
               <>
+                <div className="mt-2 flex items-center gap-2 px-2 py-3">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                    {initials}
+                  </span>
+                  <span className="truncate text-sm font-medium">{name}</span>
+                </div>
                 <Link
-                  to="/upload"
+                  to="/profile"
                   onClick={() => setOpen(false)}
                   className="rounded-lg px-2 py-3 text-sm font-medium text-navy-muted"
                   activeProps={{ className: "text-primary" }}
                 >
-                  Upload an assignment
+                  Profile
                 </Link>
                 <button
                   type="button"
                   className="rounded-lg px-2 py-3 text-left text-sm font-medium text-navy-muted"
-                  onClick={() => {
-                    setOpen(false);
-                    void signOut();
-                  }}
+                  onClick={() => void handleSignOut()}
                 >
-                  Sign out
+                  Log out
                 </button>
               </>
             ) : (
               <Link
-                to="/auth"
+                to="/login"
                 onClick={() => setOpen(false)}
                 className="mt-2 rounded-xl bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-foreground"
               >
                 Sign in
               </Link>
             )}
+
           </div>
         </nav>
       ) : null}

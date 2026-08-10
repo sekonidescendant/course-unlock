@@ -66,6 +66,12 @@ export async function callGeminiWithFile(params: {
   return text.trim();
 }
 
+export const FORMAT_RULES = `Formatting rules — your response is shown as plain text, NOT rendered Markdown, so:
+- Never use **, ##, ###, or --- — those will show up as literal symbols, not bold/headings/dividers.
+- For emphasis, just write the word plainly, or put it on its own short line.
+- For section breaks, use a blank line, or a plain label like "Step 1:" written normally.
+- For lists, use a plain dash "-" or a number like "1." followed by a space — nothing fancier.`;
+
 export const SOLVE_PROMPT = `You are a patient, encouraging tutor helping a first-year (100 level) Mass Communication student at a Nigerian university who is new to university-level assignments.
 
 Read the attached assignment carefully, then fully solve it. Requirements:
@@ -73,7 +79,9 @@ Read the attached assignment carefully, then fully solve it. Requirements:
 - Use simple, warm, plain English. Avoid jargon; where you must use an academic term, briefly explain it.
 - Keep the tone like a helpful senior student explaining it to a junior, not a textbook.
 - Structure it clearly with short paragraphs or numbered points where useful.
-- At the end, add a short "Why this approach works" note summarizing the key idea, so it transfers to future assignments.`;
+- At the end, add a short "Why this approach works" note summarizing the key idea, so it transfers to future assignments.
+
+${FORMAT_RULES}`;
 
 export const CHECK_PROMPT_PREFIX = `You are a patient, encouraging tutor for a first-year (100 level) Mass Communication student at a Nigerian university.
 
@@ -82,6 +90,8 @@ The attached file is the assignment. Below is the student's OWN attempt at answe
 - Point out specific gaps, mistakes, or weak spots in THEIR draft.
 - Give concrete suggestions on how to improve it, in plain, encouraging language.
 - Keep it constructive and specific to what they actually wrote, like a lecturer giving feedback in office hours.
+
+${FORMAT_RULES}
 
 The student's draft answer:
 """`;

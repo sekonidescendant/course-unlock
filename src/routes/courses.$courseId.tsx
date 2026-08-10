@@ -2,16 +2,26 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ChevronLeft, Download, Lock, Upload, FileText, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Download, Lock, Upload, FileText, CheckCircle2, Flag, Sparkles, BookOpenCheck } from "lucide-react";
 import { toast } from "sonner";
 import { courseQuery, assignmentsQuery, unlockQuery, courseProgressQuery, UNLOCK_PRICE_NAIRA } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { startCourseUnlock, verifyCourseUnlock } from "@/lib/payments.functions";
 import { getAssignmentDownloadUrl } from "@/lib/assignments.functions";
+import { solveAssignment, checkMyAnswer } from "@/lib/assignment-ai.functions";
 
 export const Route = createFileRoute("/courses/$courseId")({
   loader: ({ context, params }) =>
@@ -64,11 +74,41 @@ function CoursePage() {
       void queryClient.invalidateQueries({ queryKey: ["progress", "all", user.id] });
     }
   }
+
+  async function submitReport() {
+    if (!user || !reportTarget) return;
+    setReportBusy(true);
+    try {
+      const { error } = await supabase.from("assignment_reports").insert({
+        assignment_id: reportTarget,
+        reporter_id: user.id,
+        reason: reportReason.trim(),
+      });
+      if (error) throw error;
+      toast.success("Thanks — this has been flagged for review.");
+      setReportTarget(null);
+      setReportReason("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send the report");
+    } finally {
+      setReportBusy(false);
+    }
+  }
   const startUnlock = useServerFn(startCourseUnlock);
   const verifyUnlock = useServerFn(verifyCourseUnlock);
   const queryClient = useQueryClient();
   const getDownload = useServerFn(getAssignmentDownloadUrl);
   const [paying, setPaying] = useState(false);
+  const [reportTarget, setReportTarget] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState("");
+  const [reportBusy, setReportBusy] = useState(false);
+
+  const solveFn = useServerFn(solveAssignment);
+  const checkFn = useServerFn(checkMyAnswer);
+  const [aiPanel, setAiPanel] = useState<{ assignmentId: string; mode: "solve" | "check" } | null>(null);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiResult, setAiResult] = useState<string | null>(null);
+  const [checkDraft, setCheckDraft] = useState("");
 
   if (!course) {
     return (
@@ -128,6 +168,38 @@ function CoursePage() {
       window.open(res.url, "_blank", "noopener");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Download failed.");
+    }
+  }
+
+  function openSolve(assignmentId: string) {
+    setAiPanel({ assignmentId, mode: "solve" });
+    setAiResult(null);
+    setAiBusy(true);
+    solveFn({ data: { assignmentId } })
+      .then((res) => setAiResult(res.solution))
+      .catch((err) => {
+        toast.error(err instanceof Error ? err.message : "Could not solve this right now.");
+        setAiPanel(null);
+      })
+      .finally(() => setAiBusy(false));
+  }
+
+  function openCheck(assignmentId: string) {
+    setAiPanel({ assignmentId, mode: "check" });
+    setAiResult(null);
+    setCheckDraft("");
+  }
+
+  async function submitCheck() {
+    if (!aiPanel) return;
+    setAiBusy(true);
+    try {
+      const res = await checkFn({ data: { assignmentId: aiPanel.assignmentId, draft: checkDraft } });
+      setAiResult(res.feedback);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not check this right now.");
+    } finally {
+      setAiBusy(false);
     }
   }
 
@@ -255,6 +327,17 @@ function CoursePage() {
                       {a.uploader_name ? ` · ${a.uploader_name}` : ""}
                     </p>
                   </div>
+                  {user ? (
+                    <button
+                      type="button"
+                      onClick={() => setReportTarget(a.id)}
+                      className="shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
+                      aria-label="Report this assignment"
+                      title="Report this assignment"
+                    >
+                      <Flag className="size-4" />
+                    </button>
+                  ) : null}
                 </div>
                 <Button
                   className="mt-3 w-full"
@@ -271,11 +354,87 @@ function CoursePage() {
                     </>
                   )}
                 </Button>
+                {unlocked ? (
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <Button variant="outline" size="sm" onClick={() => openSolve(a.id)}>
+                      <Sparkles className="size-3.5" /> Solve it
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => openCheck(a.id)}>
+                      <BookOpenCheck className="size-3.5" /> Check my answer
+                    </Button>
+                  </div>
+                ) : null}
               </div>
             ))
           )}
         </div>
       </section>
+
+      <Dialog open={!!reportTarget} onOpenChange={(v) => !v && setReportTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Report this assignment</DialogTitle>
+            <DialogDescription>
+              Let us know what's wrong — wrong course, spam, or anything else. Only admins see this.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder="What's the issue? (optional)"
+            value={reportReason}
+            onChange={(e) => setReportReason(e.target.value)}
+            rows={3}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReportTarget(null)}>
+              Cancel
+            </Button>
+            <Button onClick={() => void submitReport()} disabled={reportBusy}>
+              {reportBusy ? "Sending…" : "Submit report"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!aiPanel} onOpenChange={(v) => !v && setAiPanel(null)}>
+        <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {aiPanel?.mode === "solve" ? "Worked solution" : "Check my answer"}
+            </DialogTitle>
+            <DialogDescription>
+              {aiPanel?.mode === "solve"
+                ? "Read through the reasoning, then write your own answer in your own words — don't just copy this in."
+                : "Paste in your own attempt first. The AI will tell you what's working and what to fix, not rewrite it for you."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {aiPanel?.mode === "check" && !aiResult ? (
+            <div className="space-y-3">
+              <Textarea
+                placeholder="Paste or type your own answer here…"
+                rows={8}
+                value={checkDraft}
+                onChange={(e) => setCheckDraft(e.target.value)}
+              />
+              <Button className="w-full" onClick={() => void submitCheck()} disabled={aiBusy || checkDraft.trim().length < 10}>
+                {aiBusy ? "Checking…" : "Get feedback"}
+              </Button>
+            </div>
+          ) : null}
+
+          {aiBusy && aiPanel?.mode === "solve" ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              Reading the assignment and working through it — a moment…
+            </p>
+          ) : null}
+
+          {aiResult ? (
+            <div className="whitespace-pre-wrap rounded-xl border border-border bg-muted/30 p-4 text-sm leading-relaxed">
+              {aiResult}
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

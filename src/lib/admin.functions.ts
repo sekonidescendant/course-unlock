@@ -135,3 +135,34 @@ export const listPaymentsAdmin = createServerFn({ method: "GET" })
     const totalKobo = rows.reduce((sum, r) => sum + (r.amount_kobo ?? 0), 0);
     return { rows, totalKobo };
   });
+
+// ---------- Reports ----------
+
+export const listReportsAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth, requireAdmin])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("assignment_reports")
+      .select("id, reason, created_at, reporter_id, assignment_id, assignments(title, courses(code))")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+
+    const reporterIds = Array.from(new Set((data ?? []).map((r) => r.reporter_id)));
+    const { data: profiles } = reporterIds.length
+      ? await supabaseAdmin.from("profiles").select("id, full_name, email").in("id", reporterIds)
+      : { data: [] as { id: string; full_name: string; email: string | null }[] };
+    const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
+
+    return (data ?? []).map((r) => ({ ...r, reporter: byId.get(r.reporter_id) ?? null }));
+  });
+
+export const dismissReportAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth, requireAdmin])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("assignment_reports").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

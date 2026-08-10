@@ -23,6 +23,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAssignmentsRouteImport } from './routes/admin.assignments'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminStudentsRouteImport } from './routes/admin.students'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
@@ -101,6 +102,11 @@ const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminStudentsRoute = AdminStudentsRouteImport.update({
   id: '/students',
   path: '/students',
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/admin/assignments': typeof AdminAssignmentsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/admin/students': typeof AdminStudentsRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/admin/assignments': typeof AdminAssignmentsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/admin/students': typeof AdminStudentsRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/admin/assignments': typeof AdminAssignmentsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/admin/students': typeof AdminStudentsRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/levels/$level': typeof LevelsLevelRouteWithChildren
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/admin/assignments'
     | '/admin/courses'
     | '/admin/payments'
+    | '/admin/reports'
     | '/admin/students'
     | '/courses/$courseId'
     | '/levels/$level'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/admin/assignments'
     | '/admin/courses'
     | '/admin/payments'
+    | '/admin/reports'
     | '/admin/students'
     | '/courses/$courseId'
     | '/payment/callback'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/admin/assignments'
     | '/admin/courses'
     | '/admin/payments'
+    | '/admin/reports'
     | '/admin/students'
     | '/courses/$courseId'
     | '/levels/$level'
@@ -392,6 +404,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPaymentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/students': {
       id: '/admin/students'
       path: '/students'
@@ -448,6 +467,7 @@ interface AdminRouteChildren {
   AdminAssignmentsRoute: typeof AdminAssignmentsRoute
   AdminCoursesRoute: typeof AdminCoursesRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
+  AdminReportsRoute: typeof AdminReportsRoute
   AdminStudentsRoute: typeof AdminStudentsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -456,6 +476,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAssignmentsRoute: AdminAssignmentsRoute,
   AdminCoursesRoute: AdminCoursesRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
+  AdminReportsRoute: AdminReportsRoute,
   AdminStudentsRoute: AdminStudentsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }

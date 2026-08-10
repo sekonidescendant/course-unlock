@@ -4,7 +4,7 @@
 // files are NOT parsed reliably by Gemini's file understanding, so uploads
 // used with "Solve it" / "Check my answer" should be PDF or an image scan.
 
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-3.6-flash";
 
 function mimeTypeFor(fileName: string): string {
   const ext = fileName.split(".").pop()?.toLowerCase();

@@ -15,6 +15,7 @@ import {
 const navItems = [
   { to: "/", label: "Home", exact: true },
   { to: "/courses", label: "Browse Courses", exact: false },
+  { to: "/practice", label: "Practice Questions", exact: false },
   { to: "/my-downloads", label: "My Downloads", exact: false },
 ] as const;
 
@@ -182,6 +183,7 @@ export function SiteFooter() {
         <div className="flex flex-wrap gap-4 text-xs text-navy-muted">
           <Link to="/">Home</Link>
           <Link to="/courses">Browse Courses</Link>
+          <Link to="/practice">Practice Questions</Link>
           <Link to="/my-downloads">My Downloads</Link>
           <Link to="/upload">Upload</Link>
         </div>

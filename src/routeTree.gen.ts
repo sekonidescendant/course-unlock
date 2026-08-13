@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyDownloadsRouteImport } from './routes/my-downloads'
+import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
@@ -29,6 +30,7 @@ import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as LevelsLevelRouteImport } from './routes/levels.$level'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
+import { Route as CoursesCourseIdPracticeRouteImport } from './routes/courses.$courseId.practice'
 import { Route as LevelsLevelIndexRouteImport } from './routes/levels.$level.index'
 import { Route as LevelsLevelSemesterRouteImport } from './routes/levels.$level.$semester'
 
@@ -60,6 +62,11 @@ const LoginRoute = LoginRouteImport.update({
 const MyDownloadsRoute = MyDownloadsRouteImport.update({
   id: '/my-downloads',
   path: '/my-downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PracticeRoute = PracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -132,6 +139,11 @@ const PaymentCallbackRoute = PaymentCallbackRouteImport.update({
   path: '/payment/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesCourseIdPracticeRoute = CoursesCourseIdPracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
+  getParentRoute: () => CoursesCourseIdRoute,
+} as any)
 const LevelsLevelIndexRoute = LevelsLevelIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -150,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/my-downloads': typeof MyDownloadsRoute
+  '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
@@ -159,11 +172,12 @@ export interface FileRoutesByFullPath {
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/students': typeof AdminStudentsRoute
-  '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdRouteWithChildren
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/payment/callback': typeof PaymentCallbackRoute
   '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/courses/$courseId/practice': typeof CoursesCourseIdPracticeRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
   '/levels/$level/': typeof LevelsLevelIndexRoute
 }
@@ -173,6 +187,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/my-downloads': typeof MyDownloadsRoute
+  '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
@@ -182,10 +197,11 @@ export interface FileRoutesByTo {
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/students': typeof AdminStudentsRoute
-  '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdRouteWithChildren
   '/payment/callback': typeof PaymentCallbackRoute
   '/admin': typeof AdminIndexRoute
   '/courses': typeof CoursesIndexRoute
+  '/courses/$courseId/practice': typeof CoursesCourseIdPracticeRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
   '/levels/$level': typeof LevelsLevelIndexRoute
 }
@@ -197,6 +213,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/my-downloads': typeof MyDownloadsRoute
+  '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
@@ -206,11 +223,12 @@ export interface FileRoutesById {
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/students': typeof AdminStudentsRoute
-  '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdRouteWithChildren
   '/levels/$level': typeof LevelsLevelRouteWithChildren
   '/payment/callback': typeof PaymentCallbackRoute
   '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/courses/$courseId/practice': typeof CoursesCourseIdPracticeRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
   '/levels/$level/': typeof LevelsLevelIndexRoute
 }
@@ -223,6 +241,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/my-downloads'
+    | '/practice'
     | '/profile'
     | '/reset-password'
     | '/signup'
@@ -237,6 +256,7 @@ export interface FileRouteTypes {
     | '/payment/callback'
     | '/admin/'
     | '/courses/'
+    | '/courses/$courseId/practice'
     | '/levels/$level/$semester'
     | '/levels/$level/'
   fileRoutesByTo: FileRoutesByTo
@@ -246,6 +266,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/my-downloads'
+    | '/practice'
     | '/profile'
     | '/reset-password'
     | '/signup'
@@ -259,6 +280,7 @@ export interface FileRouteTypes {
     | '/payment/callback'
     | '/admin'
     | '/courses'
+    | '/courses/$courseId/practice'
     | '/levels/$level/$semester'
     | '/levels/$level'
   id:
@@ -269,6 +291,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/my-downloads'
+    | '/practice'
     | '/profile'
     | '/reset-password'
     | '/signup'
@@ -283,6 +306,7 @@ export interface FileRouteTypes {
     | '/payment/callback'
     | '/admin/'
     | '/courses/'
+    | '/courses/$courseId/practice'
     | '/levels/$level/$semester'
     | '/levels/$level/'
   fileRoutesById: FileRoutesById
@@ -294,11 +318,12 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   MyDownloadsRoute: typeof MyDownloadsRoute
+  PracticeRoute: typeof PracticeRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   UploadRoute: typeof UploadRoute
-  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+  CoursesCourseIdRoute: typeof CoursesCourseIdRouteWithChildren
   LevelsLevelRoute: typeof LevelsLevelRouteWithChildren
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   CoursesIndexRoute: typeof CoursesIndexRoute
@@ -346,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/my-downloads'
       fullPath: '/my-downloads'
       preLoaderRoute: typeof MyDownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/practice': {
+      id: '/practice'
+      path: '/practice'
+      fullPath: '/practice'
+      preLoaderRoute: typeof PracticeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -446,6 +478,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/$courseId/practice': {
+      id: '/courses/$courseId/practice'
+      path: '/practice'
+      fullPath: '/courses/$courseId/practice'
+      preLoaderRoute: typeof CoursesCourseIdPracticeRouteImport
+      parentRoute: typeof CoursesCourseIdRoute
+    }
     '/levels/$level/': {
       id: '/levels/$level/'
       path: '/'
@@ -483,6 +522,18 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface CoursesCourseIdRouteChildren {
+  CoursesCourseIdPracticeRoute: typeof CoursesCourseIdPracticeRoute
+}
+
+const CoursesCourseIdRouteChildren: CoursesCourseIdRouteChildren = {
+  CoursesCourseIdPracticeRoute: CoursesCourseIdPracticeRoute,
+}
+
+const CoursesCourseIdRouteWithChildren = CoursesCourseIdRoute._addFileChildren(
+  CoursesCourseIdRouteChildren,
+)
+
 interface LevelsLevelRouteChildren {
   LevelsLevelSemesterRoute: typeof LevelsLevelSemesterRoute
   LevelsLevelIndexRoute: typeof LevelsLevelIndexRoute
@@ -504,11 +555,12 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   MyDownloadsRoute: MyDownloadsRoute,
+  PracticeRoute: PracticeRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   UploadRoute: UploadRoute,
-  CoursesCourseIdRoute: CoursesCourseIdRoute,
+  CoursesCourseIdRoute: CoursesCourseIdRouteWithChildren,
   LevelsLevelRoute: LevelsLevelRouteWithChildren,
   PaymentCallbackRoute: PaymentCallbackRoute,
   CoursesIndexRoute: CoursesIndexRoute,

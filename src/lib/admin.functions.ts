@@ -166,3 +166,77 @@ export const dismissReportAdmin = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ---------- Base practice question bank ----------
+
+export const getBaseQuestionCountsAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth, requireAdmin])
+  .inputValidator((input: unknown) => z.object({ courseId: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const counts: Record<string, number> = { easy: 0, medium: 0, hard: 0 };
+    for (const difficulty of ["easy", "medium", "hard"] as const) {
+      const { count } = await supabaseAdmin
+        .from("practice_questions")
+        .select("id", { count: "exact", head: true })
+        .eq("course_id", data.courseId)
+        .eq("difficulty", difficulty)
+        .is("owner_id", null);
+      counts[difficulty] = count ?? 0;
+    }
+    return counts;
+  });
+
+// Generates one batch (a handful of internal AI calls chained together) of shared
+// base questions from the course's own outline. Click multiple times to build up
+// toward a large bank — kept as a batch rather than one giant call to stay within
+// reasonable request time and to keep quality high per call.
+export const generateBaseQuestionsBatchAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth, requireAdmin])
+  .inputValidator((input: unknown) =>
+    z.object({ courseId: z.string().uuid(), difficulty: z.enum(["easy", "medium", "hard"]) }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { generateQuestionsFromText } = await import("@/lib/gemini.server");
+
+    const { data: course } = await supabaseAdmin
+      .from("courses")
+      .select("title, outline")
+      .eq("id", data.courseId)
+      .maybeSingle();
+    if (!course) throw new Error("Course not found.");
+
+    const outline = (course.outline as { title: string; description: string }[]) ?? [];
+    if (outline.length === 0) throw new Error("This course has no outline yet — write that first.");
+    const sourceText = outline.map((w, i) => `Week ${i + 1}: ${w.title} — ${w.description}`).join("\n");
+
+    // 3 chained calls of 15 = up to 45 new questions per click.
+    let inserted = 0;
+    for (let i = 0; i < 3; i++) {
+      try {
+        const questions = await generateQuestionsFromText({
+          sourceText,
+          difficulty: data.difficulty,
+          count: 15,
+          courseTitle: course.title,
+        });
+        const rows = questions.map((q) => ({
+          course_id: data.courseId,
+          owner_id: null,
+          difficulty: data.difficulty,
+          question_text: q.question_text,
+          options: q.options,
+          correct_index: q.correct_index,
+          explanation: q.explanation,
+        }));
+        const { error } = await supabaseAdmin.from("practice_questions").insert(rows);
+        if (!error) inserted += rows.length;
+      } catch {
+        // One failed sub-batch shouldn't kill the whole click — keep whatever succeeded.
+        break;
+      }
+    }
+    if (inserted === 0) throw new Error("Couldn't generate any questions this time — try again.");
+    return { inserted };
+  });

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { BookOpen, FileText, Flag, LayoutDashboard, Users, Wallet } from "lucide-react";
+import { BookOpen, FileText, Flag, LayoutDashboard, Sparkles, Users, Wallet } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { ADMIN_EMAIL } from "@/lib/admin.functions";
 
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/admin")({
 
 const links = [
   { to: "/admin/courses", label: "Courses", icon: BookOpen },
+  { to: "/admin/practice-bank", label: "Practice Bank", icon: Sparkles },
   { to: "/admin/assignments", label: "Assignments", icon: FileText },
   { to: "/admin/reports", label: "Reports", icon: Flag },
   { to: "/admin/students", label: "Students", icon: Users },

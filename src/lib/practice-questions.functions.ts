@@ -3,6 +3,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { generateQuestionsFromFile } from "@/lib/gemini.server";
 
+// Student uploads their own material (lecture notes, a specific past question, etc.)
+// to generate a PERSONAL set of questions, separate from the shared base bank.
 export const generatePracticeQuestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
@@ -40,7 +42,7 @@ export const generatePracticeQuestions = createServerFn({ method: "POST" })
       fileBytes,
       fileName: data.fileName,
       difficulty: data.difficulty,
-      count: 8,
+      count: 10,
       courseTitle: course.title,
     });
 
@@ -60,9 +62,9 @@ export const generatePracticeQuestions = createServerFn({ method: "POST" })
     return { count: rows.length };
   });
 
-// Pulls up to `limit` questions for a course+difficulty (shared + the caller's own),
-// used to assemble a timed test. Returns fewer than `limit` if that's all that exists —
-// caller is responsible for shrinking the test / timer to match what's actually available.
+// Assembles a timed test: pulls from the shared base bank (owner_id null) PLUS the
+// student's own personal-upload questions, then returns a genuinely random sample —
+// not just "the most recent N" — so repeat tests actually vary.
 export const listPracticeQuestionsForTest = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
@@ -78,14 +80,30 @@ export const listPracticeQuestionsForTest = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const userId = (context as { userId: string }).userId;
 
+    const { data: unlock } = await supabaseAdmin
+      .from("course_unlocks")
+      .select("id")
+      .eq("course_id", data.courseId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!unlock) throw new Error("Unlock this course first.");
+
+    // Pull a larger pool than needed (up to 300), then randomly sample from it —
+    // avoids always serving the same "most recent" questions.
     const { data: rows, error } = await supabaseAdmin
       .from("practice_questions")
       .select("id, question_text, options, correct_index, explanation")
       .eq("course_id", data.courseId)
       .eq("difficulty", data.difficulty)
       .or(`owner_id.is.null,owner_id.eq.${userId}`)
-      .order("created_at", { ascending: false })
-      .limit(data.limit);
+      .limit(300);
     if (error) throw new Error(error.message);
-    return rows ?? [];
+
+    const pool = rows ?? [];
+    // Fisher-Yates shuffle, then take what's needed.
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j]!, pool[i]!];
+    }
+    return pool.slice(0, data.limit);
   });

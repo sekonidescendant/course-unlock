@@ -303,7 +303,7 @@ function PracticeTestPage() {
 
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <p className="font-semibold">{q.question_text}</p>
-          <RadioGroup className="mt-4 space-y-2" value={selected !== undefined ? String(selected) : undefined} onValueChange={(v) => selectAnswer(q.id, Number(v))}>
+          <RadioGroup key={q.id} className="mt-4 space-y-2" value={selected !== undefined ? String(selected) : undefined} onValueChange={(v) => selectAnswer(q.id, Number(v))}>
             {q.options.map((opt, oi) => (
               <div key={oi} className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-sm">
                 <RadioGroupItem value={String(oi)} id={`${q.id}-${oi}`} />

@@ -3,13 +3,21 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Sparkles, Upload, XCircle } from "lucide-react";
 import { courseQuery } from "@/lib/queries";
-import { listPracticeQuestionsForTest } from "@/lib/practice-questions.functions";
+import { listPracticeQuestionsForTest, generatePracticeQuestions } from "@/lib/practice-questions.functions";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/practice/$courseId")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(courseQuery(params.courseId)),
@@ -36,10 +44,23 @@ type Question = {
 
 type Phase = "setup" | "running" | "results";
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).split(",")[1] ?? "");
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 function PracticeTestPage() {
   const { courseId } = Route.useParams();
   const { data: course } = useSuspenseQuery(courseQuery(courseId));
   const fetchQuestions = useServerFn(listPracticeQuestionsForTest);
+  const generateFn = useServerFn(generatePracticeQuestions);
+  const [genOpen, setGenOpen] = useState(false);
+  const [genFile, setGenFile] = useState<File | null>(null);
+  const [genBusy, setGenBusy] = useState(false);
 
   const [phase, setPhase] = useState<Phase>("setup");
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
@@ -91,6 +112,28 @@ function PracticeTestPage() {
     }
   }
 
+  async function submitGenerate() {
+    if (!genFile) return;
+    setGenBusy(true);
+    try {
+      const fileBase64 = await fileToBase64(genFile);
+      const res = await generateFn({ data: { courseId, difficulty, fileBase64, fileName: genFile.name } });
+      toast.success(`${res.count} personal questions added — they'll be included next time you start a test.`);
+      setGenOpen(false);
+      setGenFile(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not generate questions.";
+      if (message.includes("Unlock")) {
+        setNotUnlocked(true);
+        setGenOpen(false);
+      } else {
+        toast.error(message);
+      }
+    } finally {
+      setGenBusy(false);
+    }
+  }
+
   function finishTest() {
     if (submittedRef.current) return;
     submittedRef.current = true;
@@ -128,6 +171,7 @@ function PracticeTestPage() {
   // ---------- Setup ----------
   if (phase === "setup") {
     return (
+      <>
       <div className="mx-auto max-w-xl px-4 py-8">
         <Link to="/practice" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="size-4" /> Back to Practice Questions
@@ -186,9 +230,49 @@ function PracticeTestPage() {
             <Button className="w-full" onClick={() => void startTest()} disabled={loading}>
               {loading ? "Loading…" : "Start test"}
             </Button>
+
+            <div className="border-t border-border pt-4 text-center">
+              <p className="mb-2 text-xs text-muted-foreground">
+                Have your own notes or a past question? Add your own questions to the pool.
+              </p>
+              <Button variant="outline" size="sm" onClick={() => setGenOpen(true)}>
+                <Sparkles className="size-3.5" /> Generate from material
+              </Button>
+            </div>
           </div>
         )}
       </div>
+
+      <Dialog open={genOpen} onOpenChange={setGenOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Generate practice questions from your material</DialogTitle>
+            <DialogDescription>
+              Upload a PDF or a clear photo of your notes/past questions for {difficulty} difficulty. You'll
+              get 10 new questions added to your personal pool for this course.
+            </DialogDescription>
+          </DialogHeader>
+          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground hover:bg-accent">
+            <Upload className="size-5" />
+            {genFile ? genFile.name : "Click to choose a file"}
+            <input
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg,.webp"
+              className="hidden"
+              onChange={(e) => setGenFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setGenOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => void submitGenerate()} disabled={!genFile || genBusy}>
+              {genBusy ? "Generating…" : "Generate 10 questions"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      </>
     );
   }
 

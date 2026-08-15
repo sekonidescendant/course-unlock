@@ -199,3 +199,65 @@ Return ONLY structured JSON matching the given schema — no extra commentary.`;
   if (questions.length === 0) throw new Error("No questions came back — try a clearer file.");
   return questions;
 }
+
+// Same schema/shape as generateQuestionsFromFile, but sourced from plain text
+// (a course's own outline) instead of an uploaded file — used for the admin-seeded
+// "base" question bank shared by every student, so it doesn't depend on someone
+// having uploaded a PDF first.
+export async function generateQuestionsFromText(params: {
+  sourceText: string;
+  difficulty: "easy" | "medium" | "hard";
+  count: number;
+  courseTitle: string;
+}): Promise<GeneratedQuestion[]> {
+  const apiKey = process.env["GEMINI_API_KEY"];
+  if (!apiKey) throw new Error("AI question generation isn't configured yet.");
+
+  const difficultyGuide: Record<string, string> = {
+    easy: "Straightforward recall and basic understanding — checks whether a student read and understood the material at a surface level.",
+    medium: "Requires connecting two or more ideas from the material, or applying a concept to a slightly new situation.",
+    hard: "Requires deeper reasoning, comparing/contrasting concepts, or applying the material to an unfamiliar scenario — exam-level difficulty.",
+  };
+
+  const prompt = `You are writing ${params.count} multiple-choice CBT (computer-based test) practice questions for a first-year (100 level) Mass Communication student studying "${params.courseTitle}" at a Nigerian university.
+
+Base every question strictly on the course outline below — don't invent facts not supported by it. Spread the questions across different weeks of the outline rather than clustering on one topic.
+
+COURSE OUTLINE:
+${params.sourceText}
+
+Difficulty level: ${params.difficulty}. ${difficultyGuide[params.difficulty]}
+
+Each question needs exactly 4 answer options, only one correct. Write a short explanation for why the correct answer is right — plain, encouraging, 100-level-friendly language, no jargon left unexplained. Do not use Markdown (**, ##, etc.) anywhere in the text. Every question must be genuinely different from the others — no duplicates or near-duplicates.
+
+Return ONLY structured JSON matching the given schema — no extra commentary.`;
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json", responseSchema: QUESTION_SCHEMA },
+      }),
+    },
+  );
+
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`AI request failed (${res.status}). ${detail.slice(0, 200)}`);
+  }
+
+  const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+  const raw = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  let parsed: { questions?: GeneratedQuestion[] };
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("The AI didn't return readable questions — try again.");
+  }
+  const questions = parsed.questions ?? [];
+  if (questions.length === 0) throw new Error("No questions came back — try again.");
+  return questions;
+}

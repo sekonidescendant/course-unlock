@@ -228,8 +228,13 @@ function PracticeTestPage() {
             </div>
 
             <Button className="w-full" onClick={() => void startTest()} disabled={loading}>
-              {loading ? "Loading…" : "Start test"}
+              {loading ? "Preparing your test…" : "Start test"}
             </Button>
+            {loading ? (
+              <p className="text-center text-xs text-muted-foreground">
+                First test for this course/difficulty can take a little longer while questions are prepared.
+              </p>
+            ) : null}
 
             <div className="border-t border-border pt-4 text-center">
               <p className="mb-2 text-xs text-muted-foreground">

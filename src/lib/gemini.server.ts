@@ -95,3 +95,107 @@ ${FORMAT_RULES}
 
 The student's draft answer:
 """`;
+export type GeneratedQuestion = {
+  question_text: string;
+  options: [string, string, string, string];
+  correct_index: 0 | 1 | 2 | 3;
+  explanation: string;
+};
+
+const QUESTION_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    questions: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          question_text: { type: "STRING" },
+          options: { type: "ARRAY", items: { type: "STRING" }, minItems: 4, maxItems: 4 },
+          correct_index: { type: "INTEGER" },
+          explanation: { type: "STRING" },
+        },
+        required: ["question_text", "options", "correct_index", "explanation"],
+      },
+    },
+  },
+  required: ["questions"],
+};
+
+function mimeTypeForGen(fileName: string): string {
+  const ext = fileName.split(".").pop()?.toLowerCase();
+  switch (ext) {
+    case "pdf":
+      return "application/pdf";
+    case "png":
+      return "image/png";
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "webp":
+      return "image/webp";
+    default:
+      return "application/octet-stream";
+  }
+}
+
+export async function generateQuestionsFromFile(params: {
+  fileBytes: ArrayBuffer;
+  fileName: string;
+  difficulty: "easy" | "medium" | "hard";
+  count: number;
+  courseTitle: string;
+}): Promise<GeneratedQuestion[]> {
+  const apiKey = process.env["GEMINI_API_KEY"];
+  if (!apiKey) throw new Error("AI question generation isn't configured yet.");
+
+  const base64 = Buffer.from(params.fileBytes).toString("base64");
+  const mimeType = mimeTypeForGen(params.fileName);
+
+  const difficultyGuide: Record<string, string> = {
+    easy: "Straightforward recall and basic understanding — checks whether a student read and understood the material at a surface level.",
+    medium: "Requires connecting two or more ideas from the material, or applying a concept to a slightly new situation.",
+    hard: "Requires deeper reasoning, comparing/contrasting concepts, or applying the material to an unfamiliar scenario — exam-level difficulty.",
+  };
+
+  const prompt = `You are writing ${params.count} multiple-choice CBT (computer-based test) practice questions for a first-year (100 level) Mass Communication student studying "${params.courseTitle}" at a Nigerian university.
+
+Base every question strictly on the attached material — don't invent facts not supported by it.
+
+Difficulty level: ${params.difficulty}. ${difficultyGuide[params.difficulty]}
+
+Each question needs exactly 4 answer options, only one correct. Write a short explanation for why the correct answer is right — plain, encouraging, 100-level-friendly language, no jargon left unexplained. Do not use Markdown (**, ##, etc.) anywhere in the text.
+
+Return ONLY structured JSON matching the given schema — no extra commentary.`;
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          { role: "user", parts: [{ text: prompt }, { inline_data: { mime_type: mimeType, data: base64 } }] },
+        ],
+        generationConfig: { responseMimeType: "application/json", responseSchema: QUESTION_SCHEMA },
+      }),
+    },
+  );
+
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`AI request failed (${res.status}). ${detail.slice(0, 200)}`);
+  }
+
+  const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+  const raw = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  let parsed: { questions?: GeneratedQuestion[] };
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("The AI didn't return readable questions — try again.");
+  }
+  const questions = parsed.questions ?? [];
+  if (questions.length === 0) throw new Error("No questions came back — try a clearer file.");
+  return questions;
+}

@@ -50,7 +50,7 @@ function UploadPage() {
       <div className="mx-auto max-w-md px-4 py-12 text-center">
         <h1 className="text-xl font-bold">Sign in to upload</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          You need a free account so other students know who shared the assignment.
+          You need a free account — this stays private to you, for your own AI help and downloads.
         </p>
         <Link to="/auth" search={{ redirect: "/upload" }} className="mt-5 inline-block">
           <Button>Sign in or create an account</Button>

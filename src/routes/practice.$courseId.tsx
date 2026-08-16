@@ -183,11 +183,11 @@ function PracticeTestPage() {
 
         {notUnlocked ? (
           <div className="mt-6 rounded-2xl border border-border bg-card p-5 text-sm">
-            Unlock this course first —{" "}
+            Unlock your account first —{" "}
             <Link to="/courses/$courseId" params={{ courseId }} className="font-medium text-primary">
-              go to the course page
+              go to any course page
             </Link>{" "}
-            to pay the one-time ₦1,000.
+            and pay the one-time ₦1,000, which unlocks every course, not just one.
           </div>
         ) : (
           <div className="mt-6 space-y-6 rounded-2xl border border-border bg-card p-5">

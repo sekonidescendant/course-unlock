@@ -83,16 +83,16 @@ export const assignmentsQuery = (courseId: string) =>
     },
   });
 
-export const unlockQuery = (courseId: string, userId: string | undefined) =>
+// A single ₦1,000 payment unlocks every course, not just one — so this checks
+// whether the student has ANY unlock row at all, ignoring which specific course
+// they originally paid from. Kept the `courseId` param so every existing call site
+// (course pages, practice pages) keeps working unchanged.
+export const unlockQuery = (_courseId: string, userId: string | undefined) =>
   queryOptions({
-    queryKey: ["unlock", courseId, userId ?? "anon"],
+    queryKey: ["unlock", "any", userId ?? "anon"],
     enabled: Boolean(userId),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("course_unlocks")
-        .select("id")
-        .eq("course_id", courseId)
-        .maybeSingle();
+      const { data, error } = await supabase.from("course_unlocks").select("id").limit(1).maybeSingle();
       if (error) throw error;
       return Boolean(data);
     },

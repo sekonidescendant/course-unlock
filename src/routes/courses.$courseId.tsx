@@ -269,7 +269,7 @@ function CoursePage() {
           <div>
             <h2 className="text-lg font-semibold">Assignments</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Uploaded by students taking this course.
+              Private to you — only you can see, download, or get AI help with what you upload here.
             </p>
           </div>
           <Link to="/upload" search={{ courseId }}>

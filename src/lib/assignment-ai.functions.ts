@@ -15,13 +15,13 @@ async function loadUnlockedAssignment(supabaseAdmin: any, assignmentId: string, 
   if (!assignment) throw new Error("Assignment not found.");
 
   if (assignment.uploaded_by !== userId) {
+    // A single ₦1,000 payment unlocks every course — any unlock row qualifies.
     const { data: unlock } = await supabaseAdmin
       .from("course_unlocks")
       .select("id")
-      .eq("course_id", assignment.course_id)
       .eq("user_id", userId)
       .maybeSingle();
-    if (!unlock) throw new Error("Unlock this course first.");
+    if (!unlock) throw new Error("Unlock your account first.");
   }
   return assignment;
 }

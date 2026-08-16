@@ -286,18 +286,18 @@ function CoursePage() {
               <p className="font-semibold">Downloads locked</p>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
-              Pay ₦{UNLOCK_PRICE_NAIRA.toLocaleString()} once for {course.code} and download every
-              assignment uploaded for this course — including ones added later.
+              Pay ₦{UNLOCK_PRICE_NAIRA.toLocaleString()} once and unlock downloads, Solve It, Check My
+              Answer, and Practice Questions across EVERY course on Course Correct — not just this one.
             </p>
             <Button className="mt-4 w-full" onClick={() => void handleUnlock()} disabled={paying}>
-              {paying ? "Opening Paystack…" : `Unlock for ₦${UNLOCK_PRICE_NAIRA.toLocaleString()}`}
+              {paying ? "Opening Paystack…" : `Unlock everything for ₦${UNLOCK_PRICE_NAIRA.toLocaleString()}`}
             </Button>
           </div>
         )}
 
         {unlocked && (
           <div className="mt-4 flex items-center gap-2 rounded-2xl border border-border bg-accent p-4 text-sm font-medium text-accent-foreground">
-            <CheckCircle2 className="size-4" /> You've unlocked downloads for this course.
+            <CheckCircle2 className="size-4" /> You've unlocked every course — downloads, AI help, and practice tests included.
           </div>
         )}
 

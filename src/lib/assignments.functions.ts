@@ -15,16 +15,17 @@ export const getAssignmentDownloadUrl = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error || !assignment) throw new Error("Assignment not found");
 
+    // A single ₦1,000 payment unlocks every course, so this checks for ANY unlock
+    // row belonging to the student, not one scoped to this specific course.
     const { data: unlock } = await context.supabase
       .from("course_unlocks")
       .select("id")
-      .eq("course_id", assignment.course_id)
       .eq("user_id", context.userId)
       .maybeSingle();
 
     const isUploader = assignment.uploaded_by === context.userId;
     if (!unlock && !isUploader) {
-      throw new Error("Unlock this course to download its assignments.");
+      throw new Error("Unlock your account to download assignments.");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -3,8 +3,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { callGeminiWithFile, SOLVE_PROMPT, CHECK_PROMPT_PREFIX } from "@/lib/gemini.server";
 
-// Shared: confirms the caller has actually unlocked the course this assignment
-// belongs to (or is the uploader), then returns the assignment row.
+// Shared: assignments are private to whoever uploaded them — only the uploader
+// can Solve It / Check My Answer on their own upload.
 async function loadUnlockedAssignment(supabaseAdmin: any, assignmentId: string, userId: string) {
   const { data: assignment, error } = await supabaseAdmin
     .from("assignments")
@@ -15,13 +15,7 @@ async function loadUnlockedAssignment(supabaseAdmin: any, assignmentId: string, 
   if (!assignment) throw new Error("Assignment not found.");
 
   if (assignment.uploaded_by !== userId) {
-    // A single ₦1,000 payment unlocks every course — any unlock row qualifies.
-    const { data: unlock } = await supabaseAdmin
-      .from("course_unlocks")
-      .select("id")
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (!unlock) throw new Error("Unlock your account first.");
+    throw new Error("This assignment isn't yours.");
   }
   return assignment;
 }

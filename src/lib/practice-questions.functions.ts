@@ -67,13 +67,13 @@ export const generatePracticeQuestions = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const userId = (context as { userId: string }).userId;
 
+    // A single ₦1,000 payment unlocks every course — any unlock row qualifies.
     const { data: unlock } = await supabaseAdmin
       .from("course_unlocks")
       .select("id")
-      .eq("course_id", data.courseId)
       .eq("user_id", userId)
       .maybeSingle();
-    if (!unlock) throw new Error("Unlock this course first.");
+    if (!unlock) throw new Error("Unlock your account first.");
 
     const { data: course } = await supabaseAdmin
       .from("courses")
@@ -126,13 +126,13 @@ export const listPracticeQuestionsForTest = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const userId = (context as { userId: string }).userId;
 
+    // A single ₦1,000 payment unlocks every course — any unlock row qualifies.
     const { data: unlock } = await supabaseAdmin
       .from("course_unlocks")
       .select("id")
-      .eq("course_id", data.courseId)
       .eq("user_id", userId)
       .maybeSingle();
-    if (!unlock) throw new Error("Unlock this course first.");
+    if (!unlock) throw new Error("Unlock your account first.");
 
     const { count: baseCount } = await supabaseAdmin
       .from("practice_questions")

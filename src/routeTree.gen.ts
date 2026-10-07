@@ -14,12 +14,14 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MyDownloadsRouteImport } from './routes/my-downloads'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as UploadRouteImport } from './routes/upload'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAssignmentsRouteImport } from './routes/admin.assignments'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
@@ -33,6 +35,7 @@ import { Route as LevelsLevelRouteImport } from './routes/levels.$level'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
 import { Route as PracticeIndexRouteImport } from './routes/practice.index'
 import { Route as PracticeCourseIdRouteImport } from './routes/practice.$courseId'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as LevelsLevelIndexRouteImport } from './routes/levels.$level.index'
 import { Route as LevelsLevelSemesterRouteImport } from './routes/levels.$level.$semester'
 
@@ -59,6 +62,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyDownloadsRoute = MyDownloadsRouteImport.update({
@@ -91,6 +99,12 @@ const UploadRoute = UploadRouteImport.update({
   path: '/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -156,6 +170,11 @@ const PracticeCourseIdRoute = PracticeCourseIdRouteImport.update({
   path: '/$courseId',
   getParentRoute: () => PracticeRoute,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LevelsLevelIndexRoute = LevelsLevelIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -173,12 +192,14 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/my-downloads': typeof MyDownloadsRoute
   '/practice': typeof PracticeRouteWithChildren
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/upload': typeof UploadRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/assignments': typeof AdminAssignmentsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -192,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/practice/': typeof PracticeIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
   '/levels/$level/': typeof LevelsLevelIndexRoute
 }
@@ -200,11 +222,13 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/my-downloads': typeof MyDownloadsRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/upload': typeof UploadRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/assignments': typeof AdminAssignmentsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -217,6 +241,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/courses': typeof CoursesIndexRoute
   '/practice': typeof PracticeIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
   '/levels/$level': typeof LevelsLevelIndexRoute
 }
@@ -227,12 +252,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/my-downloads': typeof MyDownloadsRoute
   '/practice': typeof PracticeRouteWithChildren
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/upload': typeof UploadRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/assignments': typeof AdminAssignmentsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -246,6 +273,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/practice/': typeof PracticeIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/levels/$level/$semester': typeof LevelsLevelSemesterRoute
   '/levels/$level/': typeof LevelsLevelIndexRoute
 }
@@ -257,12 +285,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/forgot-password'
     | '/login'
+    | '/mcp'
     | '/my-downloads'
     | '/practice'
     | '/profile'
     | '/reset-password'
     | '/signup'
     | '/upload'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/assignments'
     | '/admin/courses'
     | '/admin/payments'
@@ -276,6 +306,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/courses/'
     | '/practice/'
+    | '/.lovable/oauth/consent'
     | '/levels/$level/$semester'
     | '/levels/$level/'
   fileRoutesByTo: FileRoutesByTo
@@ -284,11 +315,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/forgot-password'
     | '/login'
+    | '/mcp'
     | '/my-downloads'
     | '/profile'
     | '/reset-password'
     | '/signup'
     | '/upload'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/assignments'
     | '/admin/courses'
     | '/admin/payments'
@@ -301,6 +334,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/courses'
     | '/practice'
+    | '/.lovable/oauth/consent'
     | '/levels/$level/$semester'
     | '/levels/$level'
   id:
@@ -310,12 +344,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/forgot-password'
     | '/login'
+    | '/mcp'
     | '/my-downloads'
     | '/practice'
     | '/profile'
     | '/reset-password'
     | '/signup'
     | '/upload'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/assignments'
     | '/admin/courses'
     | '/admin/payments'
@@ -329,6 +365,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/courses/'
     | '/practice/'
+    | '/.lovable/oauth/consent'
     | '/levels/$level/$semester'
     | '/levels/$level/'
   fileRoutesById: FileRoutesById
@@ -339,16 +376,19 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
+  McpRoute: typeof McpRoute
   MyDownloadsRoute: typeof MyDownloadsRoute
   PracticeRoute: typeof PracticeRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   UploadRoute: typeof UploadRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
   LevelsLevelRoute: typeof LevelsLevelRouteWithChildren
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   CoursesIndexRoute: typeof CoursesIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -386,6 +426,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-downloads': {
@@ -428,6 +475,13 @@ declare module '@tanstack/react-router' {
       path: '/upload'
       fullPath: '/upload'
       preLoaderRoute: typeof UploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -521,6 +575,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PracticeCourseIdRouteImport
       parentRoute: typeof PracticeRoute
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/levels/$level/': {
       id: '/levels/$level/'
       path: '/'
@@ -594,16 +655,20 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
+  McpRoute: McpRoute,
   MyDownloadsRoute: MyDownloadsRoute,
   PracticeRoute: PracticeRouteWithChildren,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   UploadRoute: UploadRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   CoursesCourseIdRoute: CoursesCourseIdRoute,
   LevelsLevelRoute: LevelsLevelRouteWithChildren,
   PaymentCallbackRoute: PaymentCallbackRoute,
   CoursesIndexRoute: CoursesIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

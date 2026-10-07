@@ -7,7 +7,7 @@ export const ADMIN_EMAIL = "bolajigold17@gmail.com";
 // Stacks on top of requireSupabaseAuth — only lets the single admin account through.
 const requireAdmin = createMiddleware({ type: "function" }).server(
   async ({ next, context }) => {
-    const email = (context as { claims?: { email?: string } }).claims?.email;
+    const email = (context as unknown as { claims?: { email?: string } }).claims?.email;
     if (email !== ADMIN_EMAIL) {
       throw new Error("You don't have access to this.");
     }

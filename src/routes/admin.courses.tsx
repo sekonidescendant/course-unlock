@@ -75,7 +75,7 @@ function AdminCoursesPage() {
   function updateWeek(i: number, field: keyof WeekEntry, value: string) {
     setForm((f) => {
       const outline = [...f.outline];
-      outline[i] = { ...outline[i], [field]: value };
+      outline[i] = { ...outline[i], [field]: value } as WeekEntry;
       return { ...f, outline };
     });
   }

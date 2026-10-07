@@ -44,7 +44,7 @@ function SignupPage() {
   const dest = search.redirect && search.redirect.startsWith("/") ? search.redirect : "/";
 
   useEffect(() => {
-    if (user) void navigate({ to: dest });
+    if (user) void navigate({ href: dest });
   }, [user, dest, navigate]);
 
   async function submit(e: React.FormEvent) {

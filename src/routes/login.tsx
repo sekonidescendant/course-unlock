@@ -42,7 +42,7 @@ function LoginPage() {
   const dest = search.redirect && search.redirect.startsWith("/") ? search.redirect : "/";
 
   useEffect(() => {
-    if (user) void navigate({ to: dest });
+    if (user) void navigate({ href: dest });
   }, [user, dest, navigate]);
 
   async function submit(e: React.FormEvent) {
@@ -55,7 +55,7 @@ function LoginPage() {
       });
       if (error) throw error;
       toast.success("Welcome back.");
-      void navigate({ to: dest });
+      void navigate({ href: dest });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not sign you in");
     } finally {

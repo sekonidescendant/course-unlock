@@ -43,7 +43,8 @@ async function autoFillIfLow(
         explanation: q.explanation,
       }));
       await supabaseAdmin.from("practice_questions").insert(rows);
-    } catch {
+    } catch (err) {
+      console.error("[autoFillIfLow]", err);
       break; // don't let one failed sub-batch block the student from testing with what exists
     }
   }

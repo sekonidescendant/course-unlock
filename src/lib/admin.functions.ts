@@ -232,7 +232,8 @@ export const generateBaseQuestionsBatchAdmin = createServerFn({ method: "POST" }
         }));
         const { error } = await supabaseAdmin.from("practice_questions").insert(rows);
         if (!error) inserted += rows.length;
-      } catch {
+      } catch (err) {
+        console.error("[generateBaseQuestionsBatchAdmin]", err);
         // One failed sub-batch shouldn't kill the whole click — keep whatever succeeded.
         break;
       }

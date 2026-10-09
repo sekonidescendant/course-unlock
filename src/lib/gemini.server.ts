@@ -6,6 +6,19 @@
 
 const MODEL = "gemini-3.6-flash";
 
+// Retries transient upstream failures (5xx, e.g. 503 "high demand") up to 3
+// attempts total with 1s then 2s backoff. 4xx responses return immediately.
+async function fetchWithRetry(url: string, init: RequestInit, maxAttempts = 3): Promise<Response> {
+  let res: Response | undefined;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    res = await fetch(url, init);
+    if (res.status < 500 || attempt === maxAttempts) return res;
+    console.error(`[gemini] attempt ${attempt} failed with ${res.status}, retrying...`);
+    await new Promise((r) => setTimeout(r, 1000 * attempt));
+  }
+  return res!;
+}
+
 function mimeTypeFor(fileName: string): string {
   const ext = fileName.split(".").pop()?.toLowerCase();
   switch (ext) {

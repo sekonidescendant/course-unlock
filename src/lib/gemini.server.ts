@@ -4,7 +4,7 @@
 // files are NOT parsed reliably by Gemini's file understanding, so uploads
 // used with "Solve it" / "Check my answer" should be PDF or an image scan.
 
-const MODEL = "gemini-3.6-flash";
+const MODEL = "gemini-3.5-flash-lite";
 
 // Retries transient upstream failures (5xx, e.g. 503 "high demand") up to 3
 // attempts total with 1s then 2s backoff. 4xx responses return immediately.
